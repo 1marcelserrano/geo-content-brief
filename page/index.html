@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>geo-content-brief — conteúdo que a IA cita, não só que o Google ranqueia</title>
+<meta name="description" content="Skill do Claude que transforma um keyword num brief para a era da busca generativa (GEO/AEO/LLMO): answer block no topo, H2 autocontidos, edge defensável e schema. Página que ranqueia no Google e é citada por AI Overviews, ChatGPT e Perplexity.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="geo-content-brief — conteúdo que a IA cita, não só que o Google ranqueia">
+<meta property="og:description" content="Skill do Claude que transforma um keyword num brief para a era da busca generativa (GEO/AEO/LLMO): answer block, H2 autocontidos, edge defensável e schema. Ranqueia no Google e é citado por AI Overviews, ChatGPT e Perplexity.">
+<meta property="og:image" content="https://raw.githubusercontent.com/1marcelserrano/geo-content-brief/main/assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="geo-content-brief — conteúdo que a IA cita, não só que o Google ranqueia">
+<meta name="twitter:description" content="Skill do Claude que transforma um keyword num brief para a era da busca generativa (GEO/AEO/LLMO): answer block, H2 autocontidos, edge e schema.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/1marcelserrano/geo-content-brief/main/assets/social-preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Text:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-start:#0A0A0E; --bg-end:#111114;
+    --surface:#15151A; --surface-2:#1C1C22;
+    --line:rgba(255,255,255,0.06);
+    --grid:rgba(255,255,255,0.025);
+    --headline:#F0EEE6; --ink:#E4E1D6; --ink-soft:#9A968C;
+    --accent:#B4C636; --accent-2:#6A7820;
+    --radius-sm:2px; --radius-md:4px;
+    --maxw:760px;
+    --serif:"Libre Caslon Text",Georgia,serif;
+    --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:"IBM Plex Mono","Space Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; color:var(--ink); font-family:var(--sans); font-weight:300;
+    font-size:17px; line-height:1.7;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      linear-gradient(160deg,var(--bg-start),var(--bg-end));
+    background-size:54px 54px,54px 54px,100% 100%;
+    background-attachment:fixed;
+  }
+  #progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:100;transition:width .1s linear;}
+  .wrap{display:flex;max-width:1100px;margin:0 auto;gap:40px;padding:0 24px;}
+  nav.toc{position:sticky;top:0;align-self:flex-start;height:100vh;padding:48px 0;width:230px;flex-shrink:0;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  nav.toc ol{list-style:none;margin:0;padding:0;}
+  nav.toc li{margin:0 0 14px;}
+  nav.toc a{color:var(--ink-soft);text-decoration:none;display:block;padding-left:14px;border-left:1px solid var(--line);transition:.2s;}
+  nav.toc a:hover,nav.toc a.active{color:var(--accent);border-left-color:var(--accent);}
+  main{flex:1;min-width:0;max-width:var(--maxw);padding:48px 0 120px;}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin:0 0 16px;}
+  h1{font-family:'Fraunces',var(--serif);font-weight:900;font-size:clamp(46px,8.5vw,96px);line-height:.94;color:var(--headline);letter-spacing:-.025em;margin:26px 0 42px;font-variation-settings:"opsz" 144;text-wrap:balance;}
+  h1 .hl{color:var(--accent);}
+  .lead{font-size:19px;color:var(--ink);margin:0 0 14px;}
+  .hookline{font-family:var(--serif);font-style:italic;font-size:clamp(20px,2.6vw,26px);color:var(--accent);line-height:1.3;margin:0 0 26px;}
+  /* tl;dr */
+  .tldr{background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);border-radius:var(--radius-md);padding:22px 26px;margin:0 0 30px;}
+  .tldr .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:0 0 13px;display:block;}
+  .tldr ul{margin:0;padding:0;list-style:none;}
+  .tldr li{position:relative;padding-left:22px;margin:0 0 9px;font-size:15.5px;color:var(--ink);line-height:1.5;}
+  .tldr li:last-child{margin-bottom:0;}
+  .tldr li::before{content:"→";position:absolute;left:0;top:0;color:var(--accent);font-family:var(--mono);}
+  .tldr strong{font-weight:600;color:var(--headline);}
+  h2{font-family:var(--sans);font-weight:300;font-size:clamp(22px,3vw,30px);color:var(--headline);letter-spacing:-.01em;margin:0;}
+  p{margin:0 0 18px;}
+  em,.serif{font-family:var(--serif);font-style:italic;color:var(--headline);}
+  strong{font-weight:600;color:var(--headline);}
+  section{margin:0 0 16px;border-top:1px solid var(--line);}
+  .sec-head{display:flex;align-items:baseline;gap:14px;cursor:pointer;padding:36px 0 6px;user-select:none;}
+  .sec-head .num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.14em;flex-shrink:0;text-transform:uppercase;}
+  .sec-head .chev{margin-left:auto;color:var(--ink-soft);transition:transform .3s;font-family:var(--mono);font-size:14px;}
+  section.collapsed .chev{transform:rotate(-90deg);}
+  .sec-body{overflow:hidden;transition:max-height .4s ease,opacity .3s;}
+  section.collapsed .sec-body{max-height:0 !important;opacity:0;}
+  .label{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:22px 0 6px;}
+  /* data viz */
+  .figure{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:28px 30px;margin:26px 0;}
+  .figure .cap{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 22px;}
+  .figure .note{font-size:13px;color:var(--ink-soft);margin:24px 0 0;}
+  /* stages */
+  .stages{display:grid;gap:13px;margin:26px 0;}
+  .stagecard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:20px 22px;display:flex;gap:18px;align-items:flex-start;transition:.2s;}
+  .stagecard:hover{border-color:var(--accent);}
+  .stagecard .sn{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--accent);flex-shrink:0;padding-top:2px;width:28px;}
+  .stagecard .st{color:var(--headline);font-weight:500;font-size:16px;margin:0 0 5px;}
+  .stagecard .sd{font-size:14px;color:var(--ink-soft);margin:0;line-height:1.55;}
+  /* roster (módulos) */
+  .roster{display:grid;gap:13px;margin:22px 0 0;}
+  .rcard{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-md);padding:18px 20px;display:flex;gap:18px;align-items:flex-start;transition:.2s;}
+  .rcard:hover{border-color:var(--accent);}
+  .rcard .rn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--accent);flex-shrink:0;padding-top:3px;width:118px;text-transform:uppercase;}
+  .rcard .rt{color:var(--headline);font-weight:500;font-size:15.5px;margin:0 0 4px;}
+  .rcard .rd{font-size:14px;color:var(--ink-soft);margin:0;line-height:1.55;}
+  /* domain chips + collision */
+  .seals{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;}
+  .seal{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:8px 13px;transition:.2s;}
+  .seal:hover{border-color:var(--accent);color:var(--accent);}
+  .seal b{color:var(--headline);font-weight:600;text-transform:none;letter-spacing:0;}
+  .collide{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:26px 0;font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;}
+  .collide .dom{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px 15px;color:var(--ink);}
+  .collide .op{color:var(--accent);font-size:17px;}
+  .angle{background:var(--surface);border-left:2px solid var(--accent);border-radius:var(--radius-md);padding:24px 28px;margin:24px 0 0;}
+  .angle .q{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--headline);line-height:1.35;margin:0 0 10px;}
+  .angle .src{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:0;}
+  /* closing + cta */
+  .closing{background:var(--surface);border-left:2px solid var(--accent);border-radius:var(--radius-md);padding:26px 30px;margin:30px 0 0;}
+  .closing .big{font-family:var(--serif);font-style:italic;font-size:23px;color:var(--headline);line-height:1.35;margin:0 0 14px;}
+  .cta-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:26px;}
+  .dlbtn{display:inline-block;background:var(--accent);color:#0A0B0F;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:14px 24px;border-radius:var(--radius-sm);text-decoration:none;font-weight:600;transition:.2s;}
+  .dlbtn:hover{background:#c7d94a;}
+  .cta-sec{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;transition:.2s;border-bottom:1px solid var(--line);padding-bottom:3px;}
+  .cta-sec:hover{color:var(--accent);border-color:var(--accent);}
+  /* footer */
+  footer{border-top:1px solid var(--line);margin-top:40px;padding:30px 0;display:flex;align-items:center;gap:13px;}
+  .mono-mark{height:32px;width:auto;color:var(--accent);flex-shrink:0;display:block;}
+  .sig{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);}
+  .social{display:flex;gap:14px;align-items:center;margin-top:24px;}
+  .social a{color:var(--ink-soft);transition:.2s;display:inline-flex;}
+  .social a:hover{color:var(--accent);}
+  .social button.share{background:none;border:0;padding:0;margin:0;cursor:pointer;color:var(--ink-soft);transition:.2s;display:inline-flex;font:inherit;line-height:0;}
+  .social button.share:hover{color:var(--accent);}
+  .share-toast{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);opacity:0;transition:opacity .3s;align-self:center;pointer-events:none;}
+  .share-toast.show{opacity:1;}
+  @media(max-width:880px){
+    nav.toc{display:none;}
+    .wrap{padding:0 18px;}
+    body{font-size:16px;}
+    .rcard{flex-direction:column;gap:6px;}
+    .rcard .rn{width:auto;}
+    br.brk{display:none;}
+  }
+  @media(prefers-reduced-motion:reduce){*{transition:none !important;}}
+  @media print{
+    body{background:#fff;color:#111;}
+    nav.toc,#progress{display:none;}
+    section.collapsed .sec-body{max-height:none !important;opacity:1 !important;}
+    .figure,.seal,.closing,.stagecard,.angle{border-color:#ccc;background:#fff;}
+    h1,h2,strong,em{color:#111;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="wrap">
+  <nav class="toc" aria-label="Índice">
+    <ol>
+      <li><a href="#abre">Abertura</a></li>
+      <li><a href="#c1">Camada 1 · O problema</a></li>
+      <li><a href="#c2">Camada 2 · O mecanismo</a></li>
+      <li><a href="#c3">Camada 3 · O gate</a></li>
+      <li><a href="#c4">Camada 4 · Um exemplo</a></li>
+      <li><a href="#fim">Pra fechar</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <p class="kicker">geo-content-brief · brief GEO/AEO/LLMO</p>
+    <h1 id="abre">Citado pela <span class="hl">IA</span>.</h1>
+    <p class="hookline">A busca virou resposta.<br class="brk"> Quem é citado, existe — e a citação tem forma.</p>
+    <div class="tldr">
+      <span class="lbl">TL;DR</span>
+      <ul>
+        <li><strong>O problema:</strong> seu artigo ranqueia, e mesmo assim a IA cita o concorrente. O motivo raramente é o assunto — é a forma do texto.</li>
+        <li><strong>O mecanismo:</strong> um brief de 8 campos — answer block no topo, H2 autocontidos, edge defensável, schema e llms.txt — fechado por um gate de cinco pontos.</li>
+        <li><strong>A prova:</strong> estrutura que a IA extrai e atribui. As alavancas vêm de pesquisa pública (Princeton GEO): citar fonte, citação e estatística somaram +30–40% de visibilidade.</li>
+      </ul>
+    </div>
+    <p class="lead">SEO clássico te faz clicável. Isso não basta mais. O que decide se você aparece dentro da resposta gerada é ser citável — e a skill estrutura exatamente essa camada. Ela diagnostica e organiza o brief; a redação fina fica para o escritor.</p>
+
+    <section id="c1">
+      <div class="sec-head"><span class="num">Camada 1 · O problema</span><h2></h2><span class="chev">▾</span></div>
+      <div class="sec-body"><div style="padding-bottom:10px">
+        <h2 style="margin:0 0 18px">Ranqueia, mas não é citado</h2>
+        <p>A busca não termina mais num link. Você pergunta, e o AI Overview já responde no topo — com três fontes citadas e um punhado de links que quase ninguém clica. ChatGPT, Perplexity, Gemini e Copilot fazem o mesmo: entregam a resposta e atribuem a quem deram crédito.</p>
+        <p>Você publica um artigo bom. Ele até ranqueia. E a IA cita o concorrente. O motivo raramente é o assunto. É a forma: o texto aquece por três parágrafos antes de responder, os subtítulos não respondem nada sozinhos, e não há um dado que a IA possa extrair e atribuir.</p>
+        <p class="label">Por que estar no top-10 não basta</p>
+        <p>Top-10 orgânico é pré-requisito — cerca de 52% das citações de AI Overview saem do top-10. Mas o crawler de IA lê seções isoladas, resume os primeiros 30% da página e prefere conteúdo com fonte, número e citação. Quem não dá isso de mão beijada fica de fora da resposta, não importa a posição no ranking.</p>
+      </div></div>
+    </section>
+
+    <section id="c2">
+      <div class="sec-head"><span class="num">Camada 2 · O mecanismo</span><h2></h2><span class="chev">▾</span></div>
+      <div class="sec-body"><div style="padding-bottom:10px">
+        <h2 style="margin:0 0 18px">Os cinco módulos do brief</h2>
+        <p>A skill é bimodal. No modo <strong>ESTRATÉGIA</strong> (default), keyword na mão e página ainda por escrever, ela monta um brief do zero. No modo <strong>PRODUÇÃO</strong>, com um rascunho ou URL na mesa, ela diagnostica e corrige sem reescrever o que já funciona.</p>
+        <p>No modo ESTRATÉGIA ela trabalha cinco módulos, em ordem. Cada um tem uma pergunta-guia: não respondeu, o brief não está pronto.</p>
+
+        <div class="figure">
+          <p class="cap">o brief, módulo a módulo</p>
+          <div class="roster">
+            <div class="rcard"><span class="rn">Answer block</span><div><p class="rt">Que pergunta esta página responde?</p><p class="rd">100–150 palavras de resposta direta no topo, sem aquecimento. Primeira frase no padrão "[entidade] é [categoria] que [diferencial]". Citável verbatim — porque ~55% das citações saem dos primeiros 30% da página.</p></div></div>
+            <div class="rcard"><span class="rn">Structure</span><div><p class="rt">O que as pessoas também perguntam?</p><p class="rd">Cada pergunta real (People Also Ask) vira um H2 que responde sozinho. A IA lê passagens isoladas — uma seção que depende de "como vimos acima" não é extraível.</p></div></div>
+            <div class="rcard"><span class="rn">Edge</span><div><p class="rt">O que esta página entrega que o top-5 não entrega?</p><p class="rd">Dado original, audiência específica, framework nomeado ou subtópico mais fundo. Frase-teste: "esta página faz X que ninguém fez." Não fecha? O brief não está pronto.</p></div></div>
+            <div class="rcard"><span class="rn">Brief output</span><div><p class="rt">O entregável pro redator</p><p class="rd">Um bloco limpo: keyword, core question, answer block, H2 map, ICP, edge, CTA único e o sinal de E-E-A-T. Um campo por linha, pronto pra executar.</p></div></div>
+            <div class="rcard"><span class="rn">Pre-publish</span><div><p class="rt">Tá pronto pra publicar?</p><p class="rd">Cinco binárias. Todas SIM, libera. Qualquer NÃO, volta ao módulo correspondente. É o gate detalhado na camada seguinte.</p></div></div>
+          </div>
+          <p class="note">Mais a camada técnica (LLMO): FAQPage JSON-LD inline, entrada de llms.txt e métricas de era-IA — mention rate, citation rate, share of model.</p>
+        </div>
+      </div></div>
+    </section>
+
+    <section id="c3">
+      <div class="sec-head"><span class="num">Camada 3 · O gate</span><h2></h2><span class="chev">▾</span></div>
+      <div class="sec-body"><div style="padding-bottom:10px">
+        <h2 style="margin:0 0 18px">Cinco binárias antes de publicar</h2>
+        <p>O gate é o controle de qualidade. Cinco perguntas de SIM ou NÃO. Qualquer NÃO aponta o módulo exato a refazer — nada de "melhore o texto" vago.</p>
+        <div class="stages">
+          <div class="stagecard"><span class="sn">01</span><div><p class="st">Os primeiros 150 palavras respondem a core question direto?</p><p class="sd">Sem intro, sem aquecimento. Se a resposta só aparece no meio da página, o resumo da IA não a alcança.</p></div></div>
+          <div class="stagecard"><span class="sn">02</span><div><p class="st">Cada H2 mapeia uma pergunta real?</p><p class="sd">Subtítulo que não corresponde a uma busca de gente não pega tráfego nem citação. Cada H2 sai de uma PAA ou de uma variação que o ICP digitaria.</p></div></div>
+          <div class="stagecard"><span class="sn">03</span><div><p class="st">Cada seção se sustenta sozinha?</p><p class="sd">Passage ranking: a IA extrai blocos isolados. Se a seção depende do parágrafo anterior, ela não é citável fora de contexto.</p></div></div>
+          <div class="stagecard"><span class="sn">04</span><div><p class="st">Há ≥1 dado citado por seção?</p><p class="sd">Número, fonte ou citação dão à IA o que extrair e atribuir. Seção sem dado é seção que não vira citação.</p></div></div>
+          <div class="stagecard"><span class="sn">05</span><div><p class="st">Há insight humano que o resumo da IA não entrega?</p><p class="sd">O que o modelo já sabe, ele não precisa de você pra dizer. A prova de experiência — o E-E-A-T — é o que torna a página insubstituível.</p></div></div>
+        </div>
+      </div></div>
+    </section>
+
+    <section id="c4">
+      <div class="sec-head"><span class="num">Camada 4 · Um exemplo</span><h2></h2><span class="chev">▾</span></div>
+      <div class="sec-body"><div style="padding-bottom:10px">
+        <h2 style="margin:0 0 18px">Um brief de precificação</h2>
+        <p>Pedido: brief para o keyword <em>"como precificar consultoria B2B"</em>, ICP <em>consultor solo que cobra por hora e quer migrar para valor</em>.</p>
+        <p class="label">O answer block que ela entrega</p>
+        <div class="angle">
+          <p class="q">"Precificação por valor em consultoria B2B é o modelo em que o preço reflete o resultado entregue, não as horas trabalhadas."</p>
+          <p class="src">Primeira frase no padrão definicional · resposta direta no topo · citável verbatim</p>
+        </div>
+        <p class="label" style="margin-top:26px">O edge marcado no brief</p>
+        <div class="seals">
+          <span class="seal"><b>Dado original</b> &nbsp;tabela de três faixas de preço por tamanho de problema</span>
+          <span class="seal"><b>Como provar</b> &nbsp;cálculo reproduzível, com fonte</span>
+          <span class="seal"><b>Por que cita</b> &nbsp;o top-5 atual é genérico — não traz a faixa</span>
+        </div>
+        <p style="margin-top:22px">Resposta direta no topo, um dado extraível, um ângulo que o top-5 não cobre. É a forma que a IA escolhe quando monta a resposta — e atribui.</p>
+      </div></div>
+    </section>
+
+    <section id="fim">
+      <div class="sec-head"><span class="num">Pra fechar</span><h2></h2><span class="chev">▾</span></div>
+      <div class="sec-body"><div style="padding-bottom:10px">
+        <div class="closing">
+          <p class="big">A busca não termina mais num link.<br class="brk"> Termina numa resposta.</p>
+          <p style="margin:0">A skill diagnostica e estrutura o brief que torna a página citável — answer block, H2 autocontidos, edge, schema e gate. A voz da marca tem precedência; o edge é inegociável. Genérica e vendor-neutral: serve a qualquer pessoa, marca ou negócio. Uma skill do Claude, um arquivo markdown. Sem servidor, sem dependência.</p>
+        </div>
+        <div class="cta-row">
+          <a class="dlbtn" href="https://github.com/1marcelserrano/geo-content-brief" target="_blank" rel="noopener">Ver no GitHub →</a>
+          <a class="cta-sec" href="https://fronteirista.substack.com" target="_blank" rel="noopener">Fronteirista · newsletter</a>
+        </div>
+        <p class="serif" style="margin-top:26px">Marcel</p>
+      </div></div>
+    </section>
+
+    <div class="social">
+      <a href="https://www.instagram.com/mscreative.systems" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+      <a href="https://www.linkedin.com/in/marcelserrano/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.2 8h4.6v13H.2V8zm7.4 0h4.4v1.8h.06c.6-1.1 2.06-2.26 4.24-2.26 4.54 0 5.38 2.86 5.38 6.58V21h-4.6v-5.9c0-1.4-.02-3.2-1.96-3.2-1.96 0-2.26 1.52-2.26 3.1V21H7.6V8z"/></svg></a>
+      <a href="https://fronteirista.substack.com" target="_blank" rel="noopener" aria-label="Substack"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg></a>
+      <button type="button" class="share" aria-label="Compartilhar"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+      <span class="share-toast" aria-live="polite">link copiado</span>
+    </div>
+    <footer><svg class="mono-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 67.19667 51.75458" role="img" aria-label="Monograma MSCREATIVE.SYSTEMS"><path fill="currentColor" d="M8.15479,17.66986c-.10727,4.76875.03115,9.5285.41527,14.27922.25365,3.1651,1.03955,6.29608,1.74645,9.47888C12.17932,49.84272-.28837,51.03399.0051,42.2846c.35921-10.7694,2.02753-21.07894,5.00492-30.92856.43105-1.41773,1.65413-3.47677,3.2464-2.21435.53746.42306.92911.9969,1.17496,1.72154l5.78538,16.91602c.23584.68769.41046.67353.52387-.04254,1.02383-6.35386,2.74577-12.56867,5.16579-18.64433,2.42341-6.08573,7.57839-4.14271,9.40284.91599,2.77922,7.71993,3.71882,15.26481,4.54493,24.0988.01976.18583.11541.20673.28695.06271,5.16382-4.20649,10.48613-8.20113,15.96693-11.98388.2477-.17071.22158-.25977-.07835-.26709-3.61598-.09368-7.23981-.18066-10.87148-.26095-7.39821-.16475-4.36055-6.1619-1.09576-9.14847,3.1263-2.86316,6.25148-5.72857,9.37556-8.59623,1.40786-1.29146,2.61261-3.41267,5.0914-3.82386,5.89972-.9766,7.89921,6.29685,3.23346,9.68677-3.83797,2.79228-7.80539,5.39743-11.90226,7.81541-.15464.09367-.14189.15021.03827.16962,3.88277.43335,7.73249.3423,11.54916-.27318,2.22015-.35804,3.71273-2.03541,5.76647-2.29809,3.64903-.46082,6.04224,3.15361,4.51287,6.37544-.40245.85424-1.13742,1.76487-2.20492,2.73191-9.11467,8.26941-20.20634,14.6041-28.33323,22.56665-1.08504,1.06379-2.30373,3.42673-3.57933,4.09058-4.6234,2.39615-8.52986-.9142-8.76183-5.62878-.18359-3.7576-1.48526-26.94142-1.86815-26.88513-.09989.01549-.20829.14727-.27434.33352-1.46726,4.3048-2.51335,8.71175-3.13827,13.2209-.12499.90632-.43616,1.72773-.9335,2.46426-1.56103,2.29841-3.54903-.8048-4.06681-2.08179-2.07112-5.11908-3.79413-9.98508-5.16903-14.59797-.02544-.08589-.07445-.14821-.12558-.15976l-.05874-.0085c-.02576-.00602-.05156.01476-.05761.04636-.00077.00405-.00119.00814-.00126.01226l-.00003-.00003Z"/></svg><span class="sig">MSCREATIVE.SYSTEMS&trade;</span></footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var prog=document.getElementById('progress');
+  function onScroll(){var h=document.documentElement.scrollHeight-window.innerHeight;prog.style.width=(h>0?(window.scrollY/h*100):0)+'%';}
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+  document.querySelectorAll('.sec-head').forEach(function(h){
+    var body=h.nextElementSibling;
+    body.style.maxHeight=body.scrollHeight+'px';
+    h.addEventListener('click',function(){
+      var sec=h.parentElement;sec.classList.toggle('collapsed');
+      if(!sec.classList.contains('collapsed')){body.style.maxHeight=body.scrollHeight+'px';}
+    });
+  });
+  function recalc(){document.querySelectorAll('section:not(.collapsed) .sec-body').forEach(function(b){b.style.maxHeight=b.scrollHeight+'px';});}
+  window.addEventListener('resize',recalc);
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(recalc);}
+  window.addEventListener('load',recalc);
+
+  var links=document.querySelectorAll('nav.toc a');
+  var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){links.forEach(function(a){a.classList.remove('active');});var id=e.target.id;if(map[id])map[id].classList.add('active');}});
+  },{rootMargin:'-30% 0px -60% 0px'});
+  document.querySelectorAll('main section,#abre').forEach(function(s){if(s.id)spy.observe(s);});
+
+  var shareBtn=document.querySelector('.social button.share');
+  if(shareBtn){
+    var toast=document.querySelector('.share-toast');
+    function showToast(){if(toast){toast.classList.add('show');setTimeout(function(){toast.classList.remove('show');},1800);}}
+    function legacyCopy(){try{var ta=document.createElement('textarea');ta.value=location.href;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast();}catch(e){}}
+    shareBtn.addEventListener('click',function(){
+      var data={title:document.title,text:'geo-content-brief — conteúdo que a IA cita',url:location.href};
+      if(navigator.share){navigator.share(data).catch(function(){});return;}
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(location.href).then(showToast).catch(legacyCopy);
+      }else{legacyCopy();}
+    });
+  }
+})();
+</script>
+</body>
+</html>

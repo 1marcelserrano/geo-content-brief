@@ -1,0 +1,6 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Esconde tooling auxiliar da detecção de linguagem do GitHub.
+assets/*.html linguist-vendored
+page/*.html linguist-vendored
